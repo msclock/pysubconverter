@@ -42,4 +42,5 @@ function(_vcpkg_chainload_toolchain)
   endif()
   message(
     STATUS "vcpkg_chainload_toolchain_file: ${VCPKG_CHAINLOAD_TOOLCHAIN_FILE}")
+  include(${VCPKG_CHAINLOAD_TOOLCHAIN_FILE})
 endfunction()

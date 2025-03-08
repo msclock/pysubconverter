@@ -1,8 +1,8 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 22af45c..8b60dc2 100644
+index 22af45c..6edbcf1 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -118,33 +118,51 @@ ELSE() #BUILD_STATIC_LIBRARY
+@@ -118,25 +118,41 @@ ELSE() #BUILD_STATIC_LIBRARY
  
  ADD_LIBRARY(${BUILD_TARGET_NAME} STATIC
      src/generator/config/ruleconvert.cpp
@@ -43,12 +43,11 @@ index 22af45c..8b60dc2 100644
  FIND_PACKAGE(Rapidjson REQUIRED)
  TARGET_INCLUDE_DIRECTORIES(${BUILD_TARGET_NAME} PRIVATE ${RAPIDJSON_INCLUDE_DIRS})
  
- FIND_PACKAGE(PkgConfig REQUIRED)
--
 +if(OFF)
+ FIND_PACKAGE(PkgConfig REQUIRED)
+ 
  PKG_CHECK_MODULES(YAML_CPP yaml-cpp>=0.6.3 REQUIRED)
- FIND_LIBRARY(YAML_CPP_LIBRARY NAMES yaml-cpp yaml-cppd PATHS ${YAML_CPP_LIBRARY_DIRS})
- TARGET_LINK_DIRECTORIES(${BUILD_TARGET_NAME} PRIVATE ${YAML_CPP_LIBRARY_DIRS})
+@@ -145,6 +161,9 @@ TARGET_LINK_DIRECTORIES(${BUILD_TARGET_NAME} PRIVATE ${YAML_CPP_LIBRARY_DIRS})
  TARGET_INCLUDE_DIRECTORIES(${BUILD_TARGET_NAME} PRIVATE ${YAML_CPP_INCLUDE_DIRS})
  TARGET_LINK_LIBRARIES(${BUILD_TARGET_NAME} PRIVATE ${YAML_CPP_LIBRARY})
  TARGET_COMPILE_DEFINITIONS(${BUILD_TARGET_NAME} PRIVATE -DYAML_CPP_STATIC_DEFINE)
@@ -58,7 +57,7 @@ index 22af45c..8b60dc2 100644
  
  FIND_PACKAGE(PCRE2 REQUIRED)
  TARGET_INCLUDE_DIRECTORIES(${BUILD_TARGET_NAME} PRIVATE ${PCRE2_INCLUDE_DIRS})
-@@ -164,3 +182,32 @@ ENDIF()
+@@ -164,3 +183,32 @@ ENDIF()
  IF(USING_MALLOC_TRIM)
      TARGET_COMPILE_DEFINITIONS(${BUILD_TARGET_NAME} PRIVATE -DMALLOC_TRIM)
  ENDIF()
@@ -416,3 +415,115 @@ index 86defed..83ec5f7 100644
  
  #include <quickjspp.hpp>
  
+diff --git a/src/utils/file.h b/src/utils/file.h
+index e7daacf..740dc13 100644
+--- a/src/utils/file.h
++++ b/src/utils/file.h
+@@ -2,19 +2,33 @@
+ #define FILE_H_INCLUDED
+ 
+ #include <string>
+-#include <string.h>
++#include <cstring>
+ 
+ #ifdef _WIN32
+-#include <unistd.h>
++#include <direct.h>
++#include <windows.h>
++#include <io.h>
+ #define PATH_SLASH "\\"
+ #else
+-#include <sys/types.h>
+ #include <sys/stat.h>
+-#define PATH_SLASH "//"
+-#endif // _WIN32
++#include <unistd.h>
++#define PATH_SLASH "/"
++#endif
+ 
+ #include <sys/types.h>
++
++#ifdef _WIN32
++struct dirent {
++    char d_name[MAX_PATH];
++};
++using DIR = struct {
++    HANDLE hFind;
++    WIN32_FIND_DATAA findData;
++    dirent dirEnt;
++};
++#else
+ #include <dirent.h>
++#endif
+ 
+ std::string fileGet(const std::string &path, bool scope_limit = false);
+ bool fileExist(const std::string &path, bool scope_limit = false);
+@@ -24,29 +38,49 @@ int fileWrite(const std::string &path, const std::string &content, bool overwrit
+ template<typename F>
+ int operateFiles(const std::string &path, F &&op)
+ {
+-    DIR* dir = opendir(path.data());
++#ifdef _WIN32
++    WIN32_FIND_DATAA findData;
++    HANDLE hFind = FindFirstFileA((path + "\\*").c_str(), &findData);
++    if(hFind == INVALID_HANDLE_VALUE)
++        return -1;
++    
++    do {
++        if(strcmp(findData.cFileName, ".") != 0 && 
++           strcmp(findData.cFileName, "..") != 0) {
++            if(op(findData.cFileName)) {
++                FindClose(hFind);
++                return 0;
++            }
++        }
++    } while(FindNextFileA(hFind, &findData));
++    
++    FindClose(hFind);
++    return 0;
++#else
++    DIR* dir = opendir(path.c_str());
+     if(!dir)
+         return -1;
++    
+     struct dirent* dp;
+-    while((dp = readdir(dir)) != NULL)
+-    {
+-        if(strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0)
+-        {
++    while((dp = readdir(dir)) != nullptr) {
++        if(strcmp(dp->d_name, ".") != 0 && 
++           strcmp(dp->d_name, "..") != 0) {
+             if(op(dp->d_name))
+                 break;
+         }
+     }
+     closedir(dir);
+     return 0;
++#endif
+ }
+ 
+ inline int md(const char *path)
+ {
+ #ifdef _WIN32
+-    return mkdir(path);
++    return _mkdir(path);
+ #else
+     return mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+-#endif // _WIN32
++#endif
+ }
+ 
+ #endif // FILE_H_INCLUDED
+diff --git a/src/utils/printout.h b/src/utils/printout.h
+index 4b46d71..79b46ed 100644
+--- a/src/utils/printout.h
++++ b/src/utils/printout.h
+@@ -3,7 +3,6 @@
+ 
+ #include <string>
+ #include <vector>
+-#include <unistd.h>
+ 
+ #include "misc.h"
+ #include "nodeinfo.h"
