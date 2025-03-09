@@ -3,7 +3,6 @@
 #include <filesystem>
 #include <string>
 
-#include <subconverter/handler/settings.h>
 #include <subconverter/handler/webget.h>
 #include <subconverter/utils/system.h>
 #include <subconverter/utils/urlencode.h>

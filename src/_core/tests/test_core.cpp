@@ -13,8 +13,8 @@ TEST(_core, version) {
 using _core_rc_test = test::utils::rc_dir_test;
 
 TEST_F(_core_rc_test, subconverter) {
-    auto config_dir = this->test_data_dir_.string() + "/config";
-    _core::init_config(config_dir);
+    auto config_dir = this->test_data_dir_ / "config";
+    _core::init_config(config_dir.string());
     std::vector<std::string> urls = {
         "ss://YWVzLTI1Ni1nY206VEV6amZBWXEySWp0dW9T@127.0.0.1:0123#fake 1",
         "ss://YWVzLTI1Ni1nY206VEV6amZBWXEySWp0dW9T@127.0.0.1:0123#fake 2",

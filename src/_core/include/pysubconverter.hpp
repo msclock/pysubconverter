@@ -1,5 +1,6 @@
 #pragma once
 
+#include <subconverter/handler/settings.h>
 #include "subconverter/handler/interfaces.h"
 
 namespace _core {

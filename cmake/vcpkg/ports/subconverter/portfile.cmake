@@ -12,10 +12,9 @@ vcpkg_from_github(
 
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/unofficial-subconverter-config.cmake.in" DESTINATION "${SOURCE_PATH}")
 
-set(ambiguous_file "${SOURCE_PATH}/base/rules/DivineEngine/Surge/Ruleset/StreamingMedia/Video/‎DiscoveryPlus.list")
-if(EXISTS ${ambiguous_file})
-    file(RENAME "${ambiguous_file}" "${SOURCE_PATH}/base/rules/DivineEngine/Surge/Ruleset/StreamingMedia/Video/DiscoveryPlus.list")
-endif()
+file(GLOB ambiguous_file "${SOURCE_PATH}/base/rules/DivineEngine/Surge/Ruleset/StreamingMedia/Video/*coveryPlus.list")
+message(STATUS "Renaming ambiguous file ${ambiguous_file} to ${SOURCE_PATH}/base/rules/DivineEngine/Surge/Ruleset/StreamingMedia/Video/DiscoveryPlus.list")
+file(RENAME ${ambiguous_file} "${SOURCE_PATH}/base/rules/DivineEngine/Surge/Ruleset/StreamingMedia/Video/DiscoveryPlus.list")
 
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"

@@ -9,6 +9,7 @@ Pybind11 _core plugin
 from __future__ import annotations
 
 __all__ = [
+    "Settings",
     "flush_cache",
     "get",
     "get_local",
@@ -16,12 +17,26 @@ __all__ = [
     "get_ruleset",
     "init_config",
     "render",
+    "settings",
     "sub_to_clashr",
     "subconverter",
     "surge_to_clashr",
     "update_config",
     "version",
 ]
+
+class Settings:
+    """
+    Global unique settings for subconverter.
+    """
+    def __init__(self) -> None: ...
+    @property
+    def pref_path(self) -> str:
+        """
+        Preferred path to be read for subconverter.
+        """
+    @pref_path.setter
+    def pref_path(self, arg0: str) -> None: ...
 
 def flush_cache() -> None:
     """
@@ -97,3 +112,5 @@ def version() -> str:
     """
     The _core plugin version.
     """
+
+settings: Settings  # value = <pysubconverter._core.Settings object>

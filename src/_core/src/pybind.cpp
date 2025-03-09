@@ -17,6 +17,14 @@ PYBIND11_MODULE(_core, m) {
         The _core plugin version.
     )pbdoc");
 
+    py::class_<Settings> settings_cls(m, "Settings", R"pbdoc(Global unique settings for subconverter.)pbdoc");
+    settings_cls.def(py::init<>())
+        .def_readwrite("pref_path",
+                       &Settings::prefPath,
+                       py::doc(R"pbdoc(Preferred path to be read for subconverter.)pbdoc"));
+
+    m.attr("settings") = py::cast(global, py::return_value_policy::reference);
+
     m.def("init_config",
           _core::init_config,
           py::arg("dir"),
