@@ -5,7 +5,7 @@
 
 namespace _core {
 
-void init_config(const std::string &configDir);
+void init_config();
 
 void update_config(const std::map<std::string, std::string> &arguments);
 

@@ -27,7 +27,6 @@ PYBIND11_MODULE(_core, m) {
 
     m.def("init_config",
           _core::init_config,
-          py::arg("dir"),
           py::doc(R"pbdoc(initialize the configuration directory from subconverter.)pbdoc"));
 
     m.def("subconverter", _core::subconverter, py::arg("arguments"), py::doc(R"pbdoc(convert to subscription format

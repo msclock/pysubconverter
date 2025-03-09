@@ -10,17 +10,7 @@
 namespace fs = std::filesystem;
 
 namespace _core {
-void cd(const std::string &dir) {
-    try {
-        fs::current_path(fs::canonical(dir));
-    }
-    catch (const fs::filesystem_error &e) {
-        throw std::runtime_error(e.what());
-    }
-}
-
-void init_config(const std::string &configDir) {
-    cd(configDir);
+void init_config() {
     if (!fileExist(global.prefPath)) {
         if (fileExist("pref.toml"))
             global.prefPath = "pref.toml";
