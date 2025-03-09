@@ -63,7 +63,7 @@ def get_ruleset(arguments: dict[str, str]) -> str:
     get the ruleset from subconverter.
     """
 
-def init_config(dir: str) -> None:
+def init_config() -> None:
     """
     initialize the configuration directory from subconverter.
     """
