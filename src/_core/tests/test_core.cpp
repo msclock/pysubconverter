@@ -25,7 +25,7 @@ TEST_F(_core_rc_test, subconverter) {
     std::map<std::string, std::string> arguments;
     arguments.emplace("target", "clash");
     arguments.emplace("url", url);
-    auto result = _core::pysubconverter(arguments);
+    auto result = _core::subconverter(arguments);
     EXPECT_THAT(result, testing::HasSubstr("proxies"));
     for (size_t i = 1; i <= urls.size(); ++i)
         EXPECT_THAT(result, ::testing::HasSubstr("fake " + std::to_string(i)));

@@ -6,10 +6,6 @@ SPDX-FileCopyrightText: Copyright 2024 msclock
 # configure VCPKG_CHAINLOAD_TOOLCHAIN_FILE based on VCPKG_TARGET_TRIPLET and
 # VCPKG_TARGET_ARCHITECTURE
 function(_vcpkg_chainload_toolchain)
-  if(DEFINED VCPKG_CHAINLOAD_TOOLCHAIN_FILE)
-    return()
-  endif()
-
   if(NOT DEFINED VCPKG_TARGET_TRIPLET OR NOT DEFINED VCPKG_TARGET_ARCHITECTURE)
     message(
       FATAL_ERROR
@@ -36,10 +32,11 @@ function(_vcpkg_chainload_toolchain)
         CACHE INTERNAL "vcpkg chainload")
   else()
     message(
-      WARNING
+      FATAL_ERROR
         "Could not find toolchain file for ${_chainload_toolchain_name}, skipping chainload"
     )
   endif()
+
   message(
     STATUS "vcpkg_chainload_toolchain_file: ${VCPKG_CHAINLOAD_TOOLCHAIN_FILE}")
   include(${VCPKG_CHAINLOAD_TOOLCHAIN_FILE})

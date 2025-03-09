@@ -18,7 +18,7 @@ foreach(_file ${files})
       ${CMAKE_COMMAND} -E copy_directory_if_different
       ${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/share/unofficial-subconverter/base
       ${CMAKE_CURRENT_SOURCE_DIR}/test_data/config
-    COMMENT "Sync subconverter runtime configuration to build path.")
+    COMMENT "Sync subconverter runtime configuration to test data path.")
 
   warn_target(${file_basename})
   harden_target(${file_basename})

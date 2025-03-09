@@ -3,8 +3,10 @@
 #include <filesystem>
 #include <string>
 
-#include "subconverter/handler/settings.h"
-#include "subconverter/utils/system.h"
+#include <subconverter/handler/settings.h>
+#include <subconverter/handler/webget.h>
+#include <subconverter/utils/system.h>
+#include <subconverter/utils/urlencode.h>
 
 namespace fs = std::filesystem;
 
@@ -52,12 +54,96 @@ void init_config(const std::string &configDir) {
         global.accessToken = env_token;
 }
 
-std::string pysubconverter(const std::map<std::string, std::string> &arguments) {
+void update_config(const std::map<std::string, std::string> &arguments) {
+    auto type_it = arguments.find("type");
+    auto data_it = arguments.find("data");
+
+    if (type_it != arguments.end() && data_it != arguments.end()) {
+        std::string type = type_it->second;
+        std::string data = data_it->second;
+
+        if (type == "form" || type == "direct")
+            fileWrite(global.prefPath, data, true);
+    }
+    else {
+        throw std::runtime_error("Invalid arguments, type and data are required.");
+    }
+}
+
+std::string subconverter(const std::map<std::string, std::string> &arguments) {
     Request request;
     for (auto &item : arguments) {
         request.argument.emplace(item.first, item.second);
     }
     Response response;
-    return subconverter(request, response);
+    return ::subconverter(request, response);
 }
+
+void flush_cache() {
+    flushCache();
+}
+
+std::string sub_to_clashr(const std::map<std::string, std::string> &arguments) {
+    Request request;
+    for (auto &item : arguments) {
+        request.argument.emplace(item.first, item.second);
+    }
+    Response response;
+    return simpleToClashR(request, response);
+}
+
+std::string surge_to_clashr(const std::map<std::string, std::string> &arguments) {
+    Request request;
+    for (auto &item : arguments) {
+        request.argument.emplace(item.first, item.second);
+    }
+    Response response;
+    return surgeConfToClash(request, response);
+}
+
+std::string get_ruleset(const std::map<std::string, std::string> &arguments) {
+    Request request;
+    for (auto &item : arguments) {
+        request.argument.emplace(item.first, item.second);
+    }
+    Response response;
+    return getRuleset(request, response);
+}
+
+std::string get_profile(const std::map<std::string, std::string> &arguments) {
+    Request request;
+    for (auto &item : arguments) {
+        request.argument.emplace(item.first, item.second);
+    }
+    Response response;
+    return getProfile(request, response);
+}
+
+std::string render(const std::map<std::string, std::string> &arguments) {
+    Request request;
+    for (auto &item : arguments) {
+        request.argument.emplace(item.first, item.second);
+    }
+    Response response;
+    return renderTemplate(request, response);
+}
+
+std::string get(const std::map<std::string, std::string> &arguments) {
+    auto url_it = arguments.find("url");
+    if (url_it == arguments.end()) {
+        throw std::runtime_error("Invalid arguments, url is required.");
+    }
+    std::string url = urlDecode(url_it->second);
+    return webGet(url, "");
+}
+
+std::string get_local(const std::map<std::string, std::string> &arguments) {
+    auto path_it = arguments.find("path");
+    if (path_it == arguments.end()) {
+        throw std::runtime_error("Invalid arguments, path is required.");
+    }
+    std::string path = urlDecode(path_it->second);
+    return fileGet(path);
+}
+
 } // namespace _core

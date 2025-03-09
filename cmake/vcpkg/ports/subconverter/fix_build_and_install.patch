@@ -267,18 +267,33 @@ index 61b0945..53053f3 100644
  
      //check custom group name
 diff --git a/src/handler/interfaces.h b/src/handler/interfaces.h
-index 8687736..737e8da 100644
+index 8687736..3bba50b 100644
 --- a/src/handler/interfaces.h
 +++ b/src/handler/interfaces.h
-@@ -3,7 +3,7 @@
+@@ -3,12 +3,21 @@
  
  #include <string>
  #include <map>
 -#include <inja.hpp>
-+#include <inja/inja.hpp>
  
  #include "config/ruleset.h"
  #include "generator/config/subexport.h"
+ #include "server/webserver.h"
+-
++#ifdef _WIN32
++#pragma push_macro("min")
++#pragma push_macro("max")
++#undef min
++#undef max
++#endif
++#include <inja/inja.hpp>
++#ifdef _WIN32
++#pragma pop_macro("min")
++#pragma pop_macro("max")
++#endif
+ std::string parseProxy(const std::string &source);
+ 
+ void refreshRulesets(RulesetConfigs &ruleset_list, std::vector<RulesetContent> &rca);
 diff --git a/src/handler/settings.cpp b/src/handler/settings.cpp
 index a90bec7..c3a0d6a 100644
 --- a/src/handler/settings.cpp
@@ -387,6 +402,30 @@ index a90bec7..c3a0d6a 100644
      ini.enter_section("advanced");
      std::string log_level;
      ini.get_if_exist("log_level", log_level);
+diff --git a/src/handler/webget.cpp b/src/handler/webget.cpp
+index 4433536..2482a5c 100644
+--- a/src/handler/webget.cpp
++++ b/src/handler/webget.cpp
+@@ -1,6 +1,18 @@
+ #include <iostream>
++#ifndef _WIN32
+ #include <unistd.h>
+-#include <sys/stat.h>
++#else
++#include <io.h>       // 提供Unix风格文件操作
++#include <direct.h>   // 添加目录操作支持
++// 添加Windows特有头文件
++#include <windows.h>
++// 定义POSIX兼容宏
++#define stat _stat
++#define mkdir(dir, mode) _mkdir(dir)
++#define access _access
++#define strcasecmp _stricmp
++#define strncasecmp _strnicmp
++#endif
+ //#include <mutex>
+ #include <thread>
+ #include <atomic>
 diff --git a/src/parser/subparser.cpp b/src/parser/subparser.cpp
 index ca29ece..1f9f63b 100644
 --- a/src/parser/subparser.cpp
@@ -415,6 +454,32 @@ index 86defed..83ec5f7 100644
  
  #include <quickjspp.hpp>
  
+diff --git a/src/utils/file.cpp b/src/utils/file.cpp
+index 3d1928a..9b52a2e 100644
+--- a/src/utils/file.cpp
++++ b/src/utils/file.cpp
+@@ -1,6 +1,6 @@
+ #include <string>
+ #include <fstream>
+-#include <sys/stat.h>
++#include <filesystem>
+ 
+ #include "utils/string.h"
+ 
+@@ -60,12 +60,9 @@ std::string fileGet(const std::string &path, bool scope_limit)
+ 
+ bool fileExist(const std::string &path, bool scope_limit)
+ {
+-    //using c++17 standard, but may cause problem on clang
+-    //return std::filesystem::exists(path);
+     if(scope_limit && !isInScope(path))
+         return false;
+-    struct stat st;
+-    return stat(path.data(), &st) == 0 && S_ISREG(st.st_mode);
++    return std::filesystem::exists(path);
+ }
+ 
+ bool fileCopy(const std::string &source, const std::string &dest)
 diff --git a/src/utils/file.h b/src/utils/file.h
 index e7daacf..740dc13 100644
 --- a/src/utils/file.h
@@ -515,6 +580,88 @@ index e7daacf..740dc13 100644
  }
  
  #endif // FILE_H_INCLUDED
+diff --git a/src/utils/logger.cpp b/src/utils/logger.cpp
+index ec6353b..f183320 100644
+--- a/src/utils/logger.cpp
++++ b/src/utils/logger.cpp
+@@ -1,9 +1,13 @@
+ #include <string>
+ #include <iostream>
+ #include <thread>
+-#include <sys/time.h>
+-#include <sys/types.h>
++#include <chrono>
++#include <ctime>
++#ifdef _WIN32
++#include <windows.h>
++#else
+ #include <unistd.h>
++#endif
+ 
+ #include "handler/settings.h"
+ #include "defer.h"
+@@ -12,15 +16,20 @@
+ 
+ std::string getTime(int type)
+ {
+-    time_t lt;
++    auto now = std::chrono::system_clock::now();
++    auto now_time_t = std::chrono::system_clock::to_time_t(now);
++    auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
++                            now.time_since_epoch()) % 1000000;
+     char tmpbuf[32], cMillis[7];
+     std::string format;
+-    timeval tv = {};
+-    gettimeofday(&tv, nullptr);
+-    snprintf(cMillis, 7, "%.6ld", (long)tv.tv_usec);
+-    lt = time(nullptr);
+-    struct tm *local = localtime(&lt);
+-    switch(type)
++    snprintf(cMillis, 7, "%06d", static_cast<int>(microseconds.count()));
++    struct tm local;
++#ifdef _WIN32
++    localtime_s(&local, &now_time_t);
++#else
++    localtime_r(&now_time_t, &local);
++#endif
++    switch (type)
+     {
+     case 1:
+         format = "%Y%m%d-%H%M%S";
+@@ -34,7 +43,7 @@ std::string getTime(int type)
+         format = "%Y-%m-%d %H:%M:%S";
+         break;
+     }
+-    strftime(tmpbuf, 32, format.data(), local);
++    strftime(tmpbuf, 32, format.c_str(), &local);
+     return {tmpbuf};
+ }
+ 
+@@ -62,15 +71,20 @@ std::mutex log_mutex;
+ 
+ void writeLog(int type, const std::string &content, int level)
+ {
+-    if(level > global.logLevel)
++    if (level > global.logLevel)
+         return;
+     std::lock_guard<std::mutex> lock(log_mutex);
+     const char *levels[] = {"[FATL]", "[ERRO]", "[WARN]", "[INFO]", "[DEBG]", "[VERB]"};
+-    std::cerr<<getTime(2)<<" ["<<getpid()<<" "<<get_thread_name()<<"]"<<levels[level % 6];
+-    std::cerr<<" "<<content<<"\n";
++    std::cerr << getTime(2) << " ["
++#ifdef _WIN32
++              << GetCurrentProcessId()
++#else
++              << getpid()
++#endif
++              << " " << get_thread_name() << "]" << levels[level % 6];
++    std::cerr << " " << content << "\n";
+ }
+ 
+-
+ #ifdef __GNUG__
+ #include <cstdlib>
+ #include <memory>
 diff --git a/src/utils/printout.h b/src/utils/printout.h
 index 4b46d71..79b46ed 100644
 --- a/src/utils/printout.h

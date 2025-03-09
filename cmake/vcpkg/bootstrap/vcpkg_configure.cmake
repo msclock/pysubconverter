@@ -95,6 +95,6 @@ macro(vcpkg_configure)
 
   _vcpkg_install_report_failure()
 
-  message(STATUS "vcpkg_toolchain_file:$CACHE{_VCPKG_TOOLCHAIN_FILE}")
+  message(STATUS "vcpkg_toolchain_file: $CACHE{_VCPKG_TOOLCHAIN_FILE}")
   include("$CACHE{_VCPKG_TOOLCHAIN_FILE}")
 endmacro()
