@@ -65,6 +65,10 @@ jobs:
         env:
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_BUILD: '*${{ matrix.build }}*'
+          CIBW_BEFORE_ALL_LINUX: >
+            mkdir -p ~/.cache || true &&
+            mkdir -p /host/home/runner/.cache/vcpkg || true &&
+            ln -s /host/home/runner/.cache/vcpkg ~/.cache/vcpkg || true
 
       - name: Upload wheels
         if: >
