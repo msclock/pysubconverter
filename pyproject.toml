@@ -68,6 +68,12 @@ CMAKE_TOOLCHAIN_FILE="cmake/vcpkg/vcpkg.toolchain.cmake"
 VCPKG_OVERLAY_TRIPLETS="cmake/vcpkg/triplets"
 VCPKG_OVERLAY_PORTS="cmake/vcpkg/ports"
 
+[[tool.scikit-build.overrides]]
+if.any.env.CIBUILDWHEEL = true
+if.any.env.CI = true
+inherit.cmake.define = "append"
+cmake.define.VCPKG_INSTALL_OPTIONS="'--allow-unsupported;--clean-downloads-after-build'"
+
 [tool.setuptools_scm]
 write_to = "src/pysubconverter/_version.py"
 
