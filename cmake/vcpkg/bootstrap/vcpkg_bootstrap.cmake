@@ -112,15 +112,6 @@ function(_vcpkg_upgrade vcpkg_root vcpkg_repo vcpkg_ref)
   endif()
 
   execute_process(
-    COMMAND ${GIT_EXECUTABLE} config --global --add safe.directory ${vcpkg_root}
-    WORKING_DIRECTORY ${vcpkg_root}
-    RESULT_VARIABLE result)
-
-  if(NOT result EQUAL "0")
-    message(FATAL_ERROR "failed to change origin to ${vcpkg_repo}")
-  endif()
-
-  execute_process(
     COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
     WORKING_DIRECTORY ${vcpkg_root}
     OUTPUT_VARIABLE current_git_hash
