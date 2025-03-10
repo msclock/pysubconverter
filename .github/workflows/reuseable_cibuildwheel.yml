@@ -68,8 +68,8 @@ jobs:
           CIBW_BEFORE_ALL_LINUX: >
             mkdir -p ~/.cache || true &&
             mkdir -p /host/home/runner/.cache/vcpkg || true &&
-            ln -s /host/home/runner/.cache/vcpkg ~/.cache/vcpkg || true
-            chown -R root:root ~/.cache/vcpkg || true
+            ln -s /host/home/runner/.cache/vcpkg ~/.cache/vcpkg || true &&
+            git config --global --add safe.directory ~/.cache/vcpkg/projects/pysubconverter || true
 
       - name: Upload wheels
         if: >
