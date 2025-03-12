@@ -7,7 +7,8 @@ vcpkg_from_github(
     SHA512 9f4dfa97da1ce2cb664d61625e542eea2629ea347c1476e99b78b8b77e516696ff79f243218087f4fce53c3bb43f48f87f1dfd84b1eeb5f4531bf103492b5e71
     HEAD_REF master
     PATCHES
-        fix_build_and_install.patch
+        build_and_install.patch
+        mihomo.patch
 )
 
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/unofficial-subconverter-config.cmake.in" DESTINATION "${SOURCE_PATH}")
