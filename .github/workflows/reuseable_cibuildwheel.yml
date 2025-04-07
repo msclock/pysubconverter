@@ -14,7 +14,7 @@ on:
 
 jobs:
   build_wheels:
-    name: On ${{ matrix.os }}, with ${{ matrix.arch }}, build ${{ matrix.build }} wheels
+    name: ${{ matrix.os }}, ${{ matrix.arch }}, ${{ matrix.build }} wheels
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -52,7 +52,11 @@ jobs:
         if: >
           inputs.auto && !contains(matrix.qemu_arch, matrix.arch) ||
           inputs.extra && contains(matrix.qemu_arch, matrix.arch)
+<<<<<<< before updating
         uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4
+=======
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+>>>>>>> after updating
         with:
           path: |
             ~/.cache/vcpkg
@@ -64,7 +68,7 @@ jobs:
         if: >
           inputs.auto && !contains(matrix.qemu_arch, matrix.arch) ||
           inputs.extra && contains(matrix.qemu_arch, matrix.arch)
-        uses: pypa/cibuildwheel@ee63bf16da6cddfb925f542f2c7b59ad50e93969 # v2.22.0
+        uses: pypa/cibuildwheel@d04cacbc9866d432033b1d09142936e6a0e2121a # v2.23.2
         env:
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_BUILD: '*${{ matrix.build }}*'
@@ -77,7 +81,7 @@ jobs:
         if: >
           inputs.auto && !contains(matrix.qemu_arch, matrix.arch) ||
           inputs.extra && contains(matrix.qemu_arch, matrix.arch)
-        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: cibw-${{ matrix.os }}-${{ matrix.build }}-${{ matrix.arch }}
           path: wheelhouse/*.whl
