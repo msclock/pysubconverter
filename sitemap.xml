@@ -2,22 +2,22 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://msclock.github.io/pysubconverter/</loc>
-         <lastmod>2025-05-07</lastmod>
+         <lastmod>2025-06-02</lastmod>
     </url>
     <url>
          <loc>https://msclock.github.io/pysubconverter/cmake/vcpkg/ports/</loc>
-         <lastmod>2025-05-07</lastmod>
+         <lastmod>2025-06-02</lastmod>
     </url>
     <url>
          <loc>https://msclock.github.io/pysubconverter/cmake/vcpkg/scripts/toolchains/</loc>
-         <lastmod>2025-05-07</lastmod>
+         <lastmod>2025-06-02</lastmod>
     </url>
     <url>
          <loc>https://msclock.github.io/pysubconverter/cmake/vcpkg/triplets/</loc>
-         <lastmod>2025-05-07</lastmod>
+         <lastmod>2025-06-02</lastmod>
     </url>
     <url>
          <loc>https://msclock.github.io/pysubconverter/docs/</loc>
-         <lastmod>2025-05-07</lastmod>
+         <lastmod>2025-06-02</lastmod>
     </url>
 </urlset>
