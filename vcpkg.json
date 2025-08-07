@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "name": "pysubconverter",
   "description": "A wrapper from subconverter",
-  "builtin-baseline": "65be7019941e1401e02daaba0738cab2c8a4a355",
+  "builtin-baseline": "4fea4b5ff05c28111e6c5eda0996b7feb7241317",
   "homepage": "https://github.com/msclock/pysubconverter",
   "dependencies": [
     "openssl",
